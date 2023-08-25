@@ -1,0 +1,17 @@
+[
+{
+  "directory": "/Users/cscoder/Documents/FlutterOSS/wave_send_flutter/android/app/.cxx/Debug/653n3i5g/armeabi-v7a",
+  "command": "/Users/cscoder/Library/Android/sdk/ndk/23.1.7779620/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang++ --target=armv7-none-linux-androideabi21 --gcc-toolchain=/Users/cscoder/Library/Android/sdk/ndk/23.1.7779620/toolchains/llvm/prebuilt/darwin-x86_64 --sysroot=/Users/cscoder/Library/Android/sdk/ndk/23.1.7779620/toolchains/llvm/prebuilt/darwin-x86_64/sysroot -DGGWAVE_SHARED -Dtest_cpp_EXPORTS -I../../../../src/main/cpp/ggwave/src/. -I../../../../src/main/cpp/ggwave/src/../include -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -march=armv7-a -mthumb -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC -o CMakeFiles/test-cpp.dir/src/main/cpp/test-cpp.cpp.o -c /Users/cscoder/Documents/FlutterOSS/wave_send_flutter/android/app/src/main/cpp/test-cpp.cpp",
+  "file": "/Users/cscoder/Documents/FlutterOSS/wave_send_flutter/android/app/src/main/cpp/test-cpp.cpp"
+},
+{
+  "directory": "/Users/cscoder/Documents/FlutterOSS/wave_send_flutter/android/app/.cxx/Debug/653n3i5g/armeabi-v7a",
+  "command": "/Users/cscoder/Library/Android/sdk/ndk/23.1.7779620/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang++ --target=armv7-none-linux-androideabi21 --gcc-toolchain=/Users/cscoder/Library/Android/sdk/ndk/23.1.7779620/toolchains/llvm/prebuilt/darwin-x86_64 --sysroot=/Users/cscoder/Library/Android/sdk/ndk/23.1.7779620/toolchains/llvm/prebuilt/darwin-x86_64/sysroot -DGGWAVE_SHARED -Dggwave_EXPORTS -I../../../../src/main/cpp/ggwave/src/. -I../../../../src/main/cpp/ggwave/src/../include -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -march=armv7-a -mthumb -Wformat -Werror=format-security   -Wall -Wextra -pedantic -fno-limit-debug-info  -fPIC -std=gnu++11 -o src/main/cpp/ggwave/src/CMakeFiles/ggwave.dir/ggwave.cpp.o -c /Users/cscoder/Documents/FlutterOSS/wave_send_flutter/android/app/src/main/cpp/ggwave/src/ggwave.cpp",
+  "file": "/Users/cscoder/Documents/FlutterOSS/wave_send_flutter/android/app/src/main/cpp/ggwave/src/ggwave.cpp"
+},
+{
+  "directory": "/Users/cscoder/Documents/FlutterOSS/wave_send_flutter/android/app/.cxx/Debug/653n3i5g/armeabi-v7a",
+  "command": "/Users/cscoder/Library/Android/sdk/ndk/23.1.7779620/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang++ --target=armv7-none-linux-androideabi21 --gcc-toolchain=/Users/cscoder/Library/Android/sdk/ndk/23.1.7779620/toolchains/llvm/prebuilt/darwin-x86_64 --sysroot=/Users/cscoder/Library/Android/sdk/ndk/23.1.7779620/toolchains/llvm/prebuilt/darwin-x86_64/sysroot -DGGWAVE_SHARED -Dggwave_EXPORTS -I../../../../src/main/cpp/ggwave/src/. -I../../../../src/main/cpp/ggwave/src/../include -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -march=armv7-a -mthumb -Wformat -Werror=format-security   -Wall -Wextra -pedantic -fno-limit-debug-info  -fPIC -std=gnu++11 -o src/main/cpp/ggwave/src/CMakeFiles/ggwave.dir/resampler.cpp.o -c /Users/cscoder/Documents/FlutterOSS/wave_send_flutter/android/app/src/main/cpp/ggwave/src/resampler.cpp",
+  "file": "/Users/cscoder/Documents/FlutterOSS/wave_send_flutter/android/app/src/main/cpp/ggwave/src/resampler.cpp"
+}
+]

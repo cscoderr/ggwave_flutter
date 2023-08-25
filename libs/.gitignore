@@ -1,0 +1,10 @@
+build
+build-*
+compile_commands.json
+.exrc
+.clangd
+.cache
+.vimspector.json
+.*.swp
+.ycm_extra_conf.py
+.DS_Store
