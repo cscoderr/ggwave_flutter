@@ -1,0 +1,8 @@
+# ninja log v5
+0	132	1693039471	tests/CMakeFiles/test-ggwave-c.dir/test-ggwave.c.o	29fa8643ab3037c7
+0	318	1693039471	src/CMakeFiles/ggwave.dir/resampler.cpp.o	66f36ead86d6a2a8
+0	876	1693039472	src/CMakeFiles/ggwave.dir/ggwave.cpp.o	daca6ab7a18bf674
+877	967	1693039472	/Users/cscoder/Documents/FlutterOSS/wave_send_flutter/build/app/intermediates/cxx/Debug/4y292m3q/obj/arm64-v8a/libggwave.so	b26b2d9f26277314
+967	1022	1693039472	bin/test-ggwave-c	e808082d4bc8427
+1	1224	1693039472	tests/CMakeFiles/test-ggwave-cpp.dir/test-ggwave.cpp.o	7e7d411d7fe2eb69
+1224	1301	1693039472	bin/test-ggwave-cpp	ec378c6928b8aa34

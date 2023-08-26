@@ -29,8 +29,8 @@ android {
 
     externalNativeBuild {
         cmake {
-            // path "../../libs/CMakeLists.txt"
-            path "CMakeLists.txt"
+            path "../../ggwave/CMakeLists.txt"
+            // path "CMakeLists.txt"
         }
     }
 

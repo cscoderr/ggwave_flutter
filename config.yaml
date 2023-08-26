@@ -3,4 +3,4 @@ description: Bindings to GGWave.
 output: 'ggwave.dart'
 headers:
   entry-points:
-    - 'libs/src/ggwave.cpp'
+    - 'ggwave/src/ggwave.cpp'

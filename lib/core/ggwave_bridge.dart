@@ -18,11 +18,11 @@ class GGwaveBridge {
     return ggwabeFun(paramters);
   }
 
-  int ggwaveFree(int instance) {
+  void ggwaveFree(int instance) {
     final ggwave_free =
-        _nativeApiLib.lookup<ffi.NativeFunction<ffi.Int32 Function(ffi.Int32)>>(
+        _nativeApiLib.lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int32)>>(
             'ggwave_free');
-    final ggwaveFreeFun = ggwave_free.asFunction<int Function(int)>();
+    final ggwaveFreeFun = ggwave_free.asFunction<void Function(int)>();
     return ggwaveFreeFun(instance);
   }
 
@@ -37,14 +37,14 @@ class GGwaveBridge {
 
   int ggwaveEncode({
     required int instance,
-    required ffi.Pointer<Utf8> payloadBuffer,
-    required int payloadSize,
-    required int protocolId,
+    required ffi.Pointer<Utf8> dataBuffer,
+    required int dataSize,
+    required int txProtocolId,
     required int volume,
-    required ffi.Pointer<ffi.Void> waveformBuffer,
+    required ffi.Pointer<Utf8> outputBuffer,
     required int query,
   }) {
-    late final _ggwave_encodePtr = _nativeApiLib.lookup<
+    late final ggwave_encode = _nativeApiLib.lookup<
         ffi.NativeFunction<
             ffi.Int Function(
                 ggwave_Instance,
@@ -52,12 +52,27 @@ class GGwaveBridge {
                 ffi.Int,
                 ffi.Int32,
                 ffi.Int,
-                ffi.Pointer<ffi.Void>,
+                ffi.Pointer<Utf8>,
                 ffi.Int)>>('ggwave_encode');
-    final _ggwaveEncodeFun = _ggwave_encodePtr.asFunction<
-        int Function(int, ffi.Pointer<Utf8>, int, int, int,
-            ffi.Pointer<ffi.Void>, int)>();
-    return _ggwaveEncodeFun(instance, payloadBuffer, payloadSize, protocolId,
-        volume, waveformBuffer, query);
+    final ggwaveEncodeFunc = ggwave_encode.asFunction<
+        int Function(
+            int, ffi.Pointer<Utf8>, int, int, int, ffi.Pointer<Utf8>, int)>();
+    return ggwaveEncodeFunc(instance, dataBuffer, dataSize, txProtocolId,
+        volume, outputBuffer, query);
+  }
+
+  int ggwaveDecode({
+    required int instance,
+    required ffi.Pointer<Utf8> dataBuffer,
+    required int dataSize,
+    required ffi.Pointer<Utf8> outputBuffer,
+  }) {
+    final _ggwave_decode = _nativeApiLib.lookup<
+        ffi.NativeFunction<
+            ffi.Int Function(ffi.Int, ffi.Pointer<Utf8>, ffi.Int,
+                ffi.Pointer<Utf8>)>>('ggwave_decode');
+    final _ggwaveDecodeFun = _ggwave_decode.asFunction<
+        int Function(int, ffi.Pointer<Utf8>, int, ffi.Pointer<Utf8>)>();
+    return _ggwaveDecodeFun(instance, dataBuffer, dataSize, outputBuffer);
   }
 }

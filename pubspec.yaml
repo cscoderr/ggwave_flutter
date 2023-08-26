@@ -38,6 +38,13 @@ dependencies:
   ffi: ^2.1.0
   audio_waveforms: ^1.0.4
   path_provider: ^2.1.0
+  just_audio: ^0.9.34
+  audioplayers: ^5.1.0
+  flutter_sound: ^9.2.13
+  google_speech: ^2.2.0
+  sound_stream:
+    git:
+      url: https://github.com/cscoderr/flutter-sound-stream.git
 
 dev_dependencies:
   flutter_test:

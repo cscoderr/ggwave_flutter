@@ -1,13 +1,12 @@
+import 'dart:async';
 import 'dart:ffi' as ffi;
 import 'dart:ffi';
-import 'dart:io';
+import 'dart:typed_data';
 
-import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:ffi/ffi.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:wave_send_flutter/core/ggwave_bridge.dart';
+import 'package:sound_stream/sound_stream.dart';
+import 'package:wave_send_flutter/core/core.dart';
 
 import 'ggwave_bindings.dart';
 
@@ -21,18 +20,24 @@ class SendWaveLocal extends StatefulWidget {
 class _SendWaveLocalState extends State<SendWaveLocal> {
   late final GGwaveBridge _gGwave;
   int counter = 0;
-  int inc = 1;
   late final int instance;
   final int _encodedPayload = 0;
   final int _decodedPayload = 0;
   int ret = 0;
-  final _payload = 'test';
+  final _payload = 'baba iya eyan opoor opoor opoor opoor opoor opoor ';
   final logs = <String>[];
-  // late final ffi.Pointer<GGwaveParamters> ggwaveParameters;
+  ffi.Pointer<ffi.Uint8> waveFormPointer = ffi.nullptr;
   late final ggwave_Parameters ggwaveParameters;
-  ffi.Pointer<ffi.Void> waveForm = ffi.Pointer.fromAddress(0);
-  PlayerController controller = PlayerController();
-  List<double> waveformData = [];
+  late final Pointer<Utf8> payloadPointer;
+  bool _isRecording = false;
+  bool _isPlaying = false;
+  final RecorderStream _recorder = RecorderStream();
+  final PlayerStream _player = PlayerStream();
+  final List<Uint8List> _micChunks = [];
+
+  StreamSubscription? _recorderStatus;
+  StreamSubscription? _playerStatus;
+  StreamSubscription? _audioStream;
 
   @override
   void initState() {
@@ -45,41 +50,106 @@ class _SendWaveLocalState extends State<SendWaveLocal> {
     ggwaveParameters.sampleFormatOut =
         ggwave_SampleFormat.GGWAVE_SAMPLE_FORMAT_I16;
     instance = _gGwave.ggwaveInit(ggwaveParameters);
-
-    print("instance: $instance");
-    initAudio();
+    payloadPointer = _payload.toNativeUtf8();
+    initPlugin();
   }
 
-  Future<void> initAudio() async {
-    final appDirectory = await getApplicationDocumentsDirectory();
+  Future<void> initAudio(Uint8List bytes) async {
+    _player.writeChunk(bytes);
+    // await _player.initialize(sampleRate: 48000);
+    await _player.start();
+  }
 
-    final file = File('${appDirectory.path}/plucky.mp3');
-    await file.writeAsBytes(
-        (await rootBundle.load('assets/plucky.mp3')).buffer.asUint8List());
+  Future<void> initPlugin() async {
+    _recorderStatus = _recorder.status.listen((status) {
+      if (mounted) {
+        setState(() {
+          _isRecording = status == SoundStreamStatus.Playing;
+        });
+      }
+    });
 
-    waveformData = await controller.extractWaveformData(
-      path: file.path,
-      noOfSamples: 100,
-    );
-    await controller.preparePlayer(
-      path: file.path,
-      shouldExtractWaveform: true,
-      noOfSamples: 100,
-      volume: 1.0,
-    );
+    _audioStream = _recorder.audioStream.listen((data) {
+      _micChunks.add(data);
+      processData(data.allocatePointer(), data.length);
+      setState(() {});
+    });
+
+    _playerStatus = _player.status.listen((status) {
+      if (mounted) {
+        setState(() {
+          _isPlaying = status == SoundStreamStatus.Playing;
+        });
+        print("listening");
+        print(status == SoundStreamStatus.Playing);
+      }
+    });
+
+    await Future.wait([
+      _recorder.initialize(sampleRate: 48000),
+      _player.initialize(sampleRate: 48000),
+    ]);
   }
 
   @override
   void dispose() {
     _gGwave.ggwaveFree(instance);
-    controller.dispose();
+    calloc.free(waveFormPointer);
+    calloc.free(payloadPointer);
+    _gGwave.ggwaveFree(instance);
+    _recorderStatus?.cancel();
+    _playerStatus?.cancel();
+    _audioStream?.cancel();
     super.dispose();
+  }
+
+  void processData(Pointer<Uint8> dataBuffer, int dataSize) {
+    Pointer<ffi.Uint8> decoded = calloc<ffi.Uint8>(256);
+    final response = _gGwave.ggwaveDecode(
+      instance: instance,
+      dataBuffer: dataBuffer.cast(),
+      dataSize: 2 * dataSize,
+      outputBuffer: decoded.cast(),
+    );
+
+    if (response != 0) {
+      final output = decoded.cast<Uint8>().asTypedList(response);
+
+      final result = output
+          .map((codePoint) => String.fromCharCode(codePoint))
+          .toList()
+          .join("");
+      logs.add('Data Decoded...$result');
+      setState(() {});
+      calloc.free(decoded);
+    } else {
+      logs.add('Unable to decode data....');
+    }
+  }
+
+  void decodeData() {
+    Pointer<ffi.Uint8> decoded = calloc<ffi.Uint8>(256);
+    ret = _gGwave.ggwaveDecode(
+      instance: instance,
+      dataBuffer: waveFormPointer.cast(),
+      dataSize: 2 * ret,
+      outputBuffer: decoded.cast(),
+    );
+
+    final output = decoded.cast<Uint8>().asTypedList(ret);
+
+    final result = output
+        .map((codePoint) => String.fromCharCode(codePoint))
+        .toList()
+        .join("");
+    logs.add('Data Decoded...$result');
+
+    setState(() {});
+    calloc.free(decoded);
   }
 
   @override
   Widget build(BuildContext context) {
-    ffi.Pointer<ffi.Void> payloadBuffer =
-        ffi.Pointer.fromAddress(_payload.hashCode);
     return Scaffold(
       body: SafeArea(
         child: Center(
@@ -89,20 +159,14 @@ class _SendWaveLocalState extends State<SendWaveLocal> {
               Text(
                 'Payload: $_payload',
                 style: Theme.of(context).textTheme.titleLarge,
-              ),
-              Text(
-                'encodedPayload: $_encodedPayload',
-                style: Theme.of(context).textTheme.titleSmall,
-              ),
-              Text(
-                'decodedPayload: $_decodedPayload',
-                style: Theme.of(context).textTheme.titleSmall,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
               Row(
                 children: [
                   Expanded(
                     child: TextButton(
-                      onPressed: () {},
+                      onPressed: () => processData(waveFormPointer, ret),
                       child: const Text('Decode'),
                     ),
                   ),
@@ -113,61 +177,105 @@ class _SendWaveLocalState extends State<SendWaveLocal> {
                     child: TextButton(
                       onPressed: () async {
                         logs.add('Encoding data...');
-                        await controller.startPlayer(
-                            finishMode: FinishMode.stop);
                         setState(() {});
-                        final payloadPointer = calloc<ffi.Char>(
-                            waveformData.length + 1); // +1 if null-terminated.
-                        for (int index = 0; index < _payload.length; index++) {
-                          payloadPointer[index] = _payload[index].codeUnitAt(0);
-                        }
                         final encodedPayload = _gGwave.ggwaveEncode(
                           instance: instance,
-                          payloadBuffer: _payload.toNativeUtf8(),
-                          payloadSize: _payload.length,
-                          protocolId: ggwave_ProtocolId.GGWAVE_PROTOCOL_MT_FAST,
+                          dataBuffer: payloadPointer.cast<Utf8>(),
+                          dataSize: payloadPointer.length,
+                          txProtocolId: ggwave_TxProtocolId
+                              .GGWAVE_TX_PROTOCOL_AUDIBLE_FAST,
                           volume: 50,
-                          waveformBuffer: ffi.Pointer<ffi.Void>.fromAddress(
-                              waveformData.hashCode),
+                          outputBuffer: waveFormPointer.cast(),
                           query: 1,
                         );
-                        // print(payloadBuffer.toDartString());
                         logs.add('Wave form encoing data...$encodedPayload');
+                        waveFormPointer = calloc<ffi.Uint8>(encodedPayload);
 
                         ret = _gGwave.ggwaveEncode(
                           instance: instance,
-                          payloadBuffer: Pointer.fromAddress(0),
-                          payloadSize: _payload.length,
-                          protocolId: ggwave_ProtocolId.GGWAVE_PROTOCOL_MT_FAST,
-                          volume: 10,
-                          waveformBuffer: ffi.Pointer<ffi.Void>.fromAddress(
-                              waveformData.hashCode),
+                          dataBuffer: payloadPointer.cast<Utf8>(),
+                          dataSize: _payload.length,
+                          txProtocolId: ggwave_TxProtocolId
+                              .GGWAVE_TX_PROTOCOL_AUDIBLE_FAST,
+                          volume: 50,
+                          outputBuffer: waveFormPointer.cast(),
                           query: 0,
                         );
-                        logs.add('Data Encoded...$ret');
+                        logs.add('Data Encoded...${2 * ret}');
+                        final output =
+                            waveFormPointer.cast<Uint8>().asTypedList(2 * ret);
+                        await initAudio(output);
                         setState(() {});
-                        calloc.free(payloadPointer);
-                        _gGwave.ggwaveFree(instance);
                       },
                       child: const Text('Encode'),
                     ),
                   ),
+                  const SizedBox(
+                    width: 10,
+                  ),
+                  IconButton(
+                    iconSize: 40.0,
+                    icon: Icon(_isRecording ? Icons.mic_off : Icons.mic),
+                    onPressed: _isRecording ? _recorder.stop : _recorder.start,
+                  ),
+                  IconButton(
+                    iconSize: 40.0,
+                    icon: Icon(_isPlaying ? Icons.pause : Icons.play_arrow),
+                    onPressed: _isPlaying
+                        ? _player.stop
+                        : () async {
+                            _player.start();
+                            if (_micChunks.isNotEmpty) {
+                              for (var chunk in _micChunks) {
+                                await _player.writeChunk(chunk);
+                              }
+                              _micChunks.clear();
+                            }
+                          },
+                  ),
+                  IconButton(
+                    iconSize: 40.0,
+                    icon: const Icon(Icons.refresh),
+                    onPressed: !_isRecording && _micChunks.isNotEmpty
+                        ? () {
+                            ffi.Pointer<Uint8> chunks =
+                                _micChunks.first.allocatePointer();
+                            processData(chunks, _micChunks.first.length);
+                          }
+                        : null,
+                  ),
                 ],
               ),
               const SizedBox(height: 20),
-              ...logs
-                  .map((e) => Text(
-                        e,
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodySmall
-                            ?.copyWith(color: Colors.red),
-                      ))
-                  .toList(),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: logs.length,
+                  itemBuilder: (context, index) {
+                    final newLogs = logs.reversed.toList();
+                    return Text(
+                      newLogs[index],
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodySmall
+                          ?.copyWith(color: Colors.red),
+                    );
+                  },
+                ),
+              ),
             ],
           ),
         ),
       ),
     );
+  }
+}
+
+extension Uint8ListBlobConversion on Uint8List {
+  /// Allocates a pointer filled with the Uint8List data.
+  Pointer<Uint8> allocatePointer() {
+    final blob = calloc<Uint8>(length);
+    final blobBytes = blob.asTypedList(length);
+    blobBytes.setAll(0, this);
+    return blob;
   }
 }
