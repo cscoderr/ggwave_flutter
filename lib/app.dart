@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:wave_send_flutter/send_wave_local.dart';
+import 'package:wave_send_flutter/home_page.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -13,7 +13,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const SendWaveLocal(),
+      home: const HomePage(),
     );
   }
 }

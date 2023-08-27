@@ -1,6 +1,0 @@
-name: GGwave
-description: Bindings to GGWave.
-output: 'ggwave_bindings.dart'
-headers:
-  entry-points:
-    - 'ggwave/include/ggwave/ggwave.h'

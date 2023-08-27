@@ -3,18 +3,16 @@
 import 'dart:ffi' as ffi;
 
 import 'package:ffi/ffi.dart';
-
-import '../ggwave_bindings.dart';
+import 'package:wave_send_flutter/core/core.dart';
 
 class GGwaveBridge {
   GGwaveBridge(ffi.DynamicLibrary nativeApiLib) : _nativeApiLib = nativeApiLib;
   final ffi.DynamicLibrary _nativeApiLib;
 
-  int ggwaveInit(ggwave_Parameters paramters) {
-    final init = _nativeApiLib
-        .lookup<ffi.NativeFunction<ffi.Int32 Function(ggwave_Parameters)>>(
-            'ggwave_init');
-    final ggwabeFun = init.asFunction<int Function(ggwave_Parameters)>();
+  int ggwaveInit(Parameters paramters) {
+    final init = _nativeApiLib.lookup<
+        ffi.NativeFunction<ffi.Int32 Function(Parameters)>>('ggwave_init');
+    final ggwabeFun = init.asFunction<int Function(Parameters)>();
     return ggwabeFun(paramters);
   }
 
@@ -26,12 +24,12 @@ class GGwaveBridge {
     return ggwaveFreeFun(instance);
   }
 
-  ggwave_Parameters getDefaultParameters() {
+  Parameters getDefaultParameters() {
     final defaultParameters =
-        _nativeApiLib.lookup<ffi.NativeFunction<ggwave_Parameters Function()>>(
+        _nativeApiLib.lookup<ffi.NativeFunction<Parameters Function()>>(
             'ggwave_getDefaultParameters');
     final getDefaultParametersFunc =
-        defaultParameters.asFunction<ggwave_Parameters Function()>();
+        defaultParameters.asFunction<Parameters Function()>();
     return getDefaultParametersFunc();
   }
 
@@ -46,14 +44,8 @@ class GGwaveBridge {
   }) {
     late final ggwave_encode = _nativeApiLib.lookup<
         ffi.NativeFunction<
-            ffi.Int Function(
-                ggwave_Instance,
-                ffi.Pointer<Utf8>,
-                ffi.Int,
-                ffi.Int32,
-                ffi.Int,
-                ffi.Pointer<Utf8>,
-                ffi.Int)>>('ggwave_encode');
+            ffi.Int Function(ffi.Int, ffi.Pointer<Utf8>, ffi.Int, ffi.Int32,
+                ffi.Int, ffi.Pointer<Utf8>, ffi.Int)>>('ggwave_encode');
     final ggwaveEncodeFunc = ggwave_encode.asFunction<
         int Function(
             int, ffi.Pointer<Utf8>, int, int, int, ffi.Pointer<Utf8>, int)>();
