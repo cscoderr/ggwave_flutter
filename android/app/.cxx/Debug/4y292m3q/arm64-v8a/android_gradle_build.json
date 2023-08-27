@@ -1,12 +1,6 @@
 {
   "buildFiles": [
-    "/Users/cscoder/Documents/FlutterOSS/wave_send_flutter/ggwave/CMakeLists.txt",
-    "/Users/cscoder/Documents/FlutterOSS/wave_send_flutter/ggwave/bindings/CMakeLists.txt",
-    "/Users/cscoder/Documents/FlutterOSS/wave_send_flutter/ggwave/cmake/BuildTypes.cmake",
-    "/Users/cscoder/Documents/FlutterOSS/wave_send_flutter/ggwave/cmake/GitVars.cmake",
-    "/Users/cscoder/Documents/FlutterOSS/wave_send_flutter/ggwave/examples/CMakeLists.txt",
-    "/Users/cscoder/Documents/FlutterOSS/wave_send_flutter/ggwave/src/CMakeLists.txt",
-    "/Users/cscoder/Documents/FlutterOSS/wave_send_flutter/ggwave/tests/CMakeLists.txt"
+    "/Users/cscoder/Documents/FlutterOSS/wave_send_flutter/ggwave/CMakeLists.txt"
   ],
   "cleanCommandsComponents": [
     [
@@ -23,30 +17,11 @@
     "{LIST_OF_TARGETS_TO_BUILD}"
   ],
   "libraries": {
-    "ggwave::@145eef247bfb46b6828c": {
+    "ggwave::@6890427a1f51a3e7e1df": {
       "toolchain": "toolchain",
       "abi": "arm64-v8a",
       "artifactName": "ggwave",
-      "output": "/Users/cscoder/Documents/FlutterOSS/wave_send_flutter/build/app/intermediates/cxx/Debug/4y292m3q/obj/arm64-v8a/libggwave.so",
-      "runtimeFiles": []
-    },
-    "test-ggwave-c::@a44f0ac069e85531cdee": {
-      "toolchain": "toolchain",
-      "abi": "arm64-v8a",
-      "artifactName": "test-ggwave-c",
-      "output": "/Users/cscoder/Documents/FlutterOSS/wave_send_flutter/android/app/.cxx/Debug/4y292m3q/arm64-v8a/bin/test-ggwave-c",
-      "runtimeFiles": [
-        "/Users/cscoder/Documents/FlutterOSS/wave_send_flutter/build/app/intermediates/cxx/Debug/4y292m3q/obj/arm64-v8a/libggwave.so"
-      ]
-    },
-    "test-ggwave-cpp::@a44f0ac069e85531cdee": {
-      "toolchain": "toolchain",
-      "abi": "arm64-v8a",
-      "artifactName": "test-ggwave-cpp",
-      "output": "/Users/cscoder/Documents/FlutterOSS/wave_send_flutter/android/app/.cxx/Debug/4y292m3q/arm64-v8a/bin/test-ggwave-cpp",
-      "runtimeFiles": [
-        "/Users/cscoder/Documents/FlutterOSS/wave_send_flutter/build/app/intermediates/cxx/Debug/4y292m3q/obj/arm64-v8a/libggwave.so"
-      ]
+      "output": "/Users/cscoder/Documents/FlutterOSS/wave_send_flutter/android/app/.cxx/Debug/4y292m3q/arm64-v8a/libggwave.a"
     }
   },
   "toolchains": {
@@ -55,9 +30,7 @@
       "cppCompilerExecutable": "/Users/cscoder/Library/Android/sdk/ndk/23.1.7779620/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang++.lld"
     }
   },
-  "cFileExtensions": [
-    "c"
-  ],
+  "cFileExtensions": [],
   "cppFileExtensions": [
     "cpp"
   ]

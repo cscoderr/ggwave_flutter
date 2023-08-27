@@ -6,27 +6,27 @@ import 'package:ffi/ffi.dart';
 import 'package:wave_send_flutter/core/core.dart';
 
 class GGwaveBridge {
-  GGwaveBridge(ffi.DynamicLibrary nativeApiLib) : _nativeApiLib = nativeApiLib;
-  final ffi.DynamicLibrary _nativeApiLib;
+  GGwaveBridge(ffi.DynamicLibrary dynamicLibrary)
+      : _dynamicLibrary = dynamicLibrary;
+  final ffi.DynamicLibrary _dynamicLibrary;
 
   int ggwaveInit(Parameters paramters) {
-    final init = _nativeApiLib.lookup<
+    final init = _dynamicLibrary.lookup<
         ffi.NativeFunction<ffi.Int32 Function(Parameters)>>('ggwave_init');
     final ggwabeFun = init.asFunction<int Function(Parameters)>();
     return ggwabeFun(paramters);
   }
 
   void ggwaveFree(int instance) {
-    final ggwave_free =
-        _nativeApiLib.lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int32)>>(
-            'ggwave_free');
+    final ggwave_free = _dynamicLibrary.lookup<
+        ffi.NativeFunction<ffi.Void Function(ffi.Int32)>>('ggwave_free');
     final ggwaveFreeFun = ggwave_free.asFunction<void Function(int)>();
     return ggwaveFreeFun(instance);
   }
 
   Parameters getDefaultParameters() {
     final defaultParameters =
-        _nativeApiLib.lookup<ffi.NativeFunction<Parameters Function()>>(
+        _dynamicLibrary.lookup<ffi.NativeFunction<Parameters Function()>>(
             'ggwave_getDefaultParameters');
     final getDefaultParametersFunc =
         defaultParameters.asFunction<Parameters Function()>();
@@ -42,7 +42,7 @@ class GGwaveBridge {
     required ffi.Pointer<Utf8> outputBuffer,
     required int query,
   }) {
-    late final ggwave_encode = _nativeApiLib.lookup<
+    late final ggwave_encode = _dynamicLibrary.lookup<
         ffi.NativeFunction<
             ffi.Int Function(ffi.Int, ffi.Pointer<Utf8>, ffi.Int, ffi.Int32,
                 ffi.Int, ffi.Pointer<Utf8>, ffi.Int)>>('ggwave_encode');
@@ -59,7 +59,7 @@ class GGwaveBridge {
     required int dataSize,
     required ffi.Pointer<Utf8> outputBuffer,
   }) {
-    final _ggwave_decode = _nativeApiLib.lookup<
+    final _ggwave_decode = _dynamicLibrary.lookup<
         ffi.NativeFunction<
             ffi.Int Function(ffi.Int, ffi.Pointer<Utf8>, ffi.Int,
                 ffi.Pointer<Utf8>)>>('ggwave_decode');

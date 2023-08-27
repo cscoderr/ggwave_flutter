@@ -42,13 +42,8 @@ if(NOT DEFINED CMAKE_OBJDUMP)
   set(CMAKE_OBJDUMP "/Users/cscoder/Library/Android/sdk/ndk/23.1.7779620/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-objdump")
 endif()
 
-if(NOT CMAKE_INSTALL_LOCAL_ONLY)
-  # Include the install script for each subdirectory.
-  include("/Users/cscoder/Documents/FlutterOSS/wave_send_flutter/android/app/.cxx/Debug/4y292m3q/armeabi-v7a/src/cmake_install.cmake")
-  include("/Users/cscoder/Documents/FlutterOSS/wave_send_flutter/android/app/.cxx/Debug/4y292m3q/armeabi-v7a/bindings/cmake_install.cmake")
-  include("/Users/cscoder/Documents/FlutterOSS/wave_send_flutter/android/app/.cxx/Debug/4y292m3q/armeabi-v7a/tests/cmake_install.cmake")
-  include("/Users/cscoder/Documents/FlutterOSS/wave_send_flutter/android/app/.cxx/Debug/4y292m3q/armeabi-v7a/examples/cmake_install.cmake")
-
+if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/static" TYPE STATIC_LIBRARY FILES "/Users/cscoder/Documents/FlutterOSS/wave_send_flutter/android/app/.cxx/Debug/4y292m3q/armeabi-v7a/libggwave.a")
 endif()
 
 if(CMAKE_INSTALL_COMPONENT)

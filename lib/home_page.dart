@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:ffi' as ffi;
 import 'dart:ffi';
+import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 
@@ -21,7 +22,7 @@ class _HomePageState extends State<HomePage> {
   int counter = 0;
   late final int instance;
   int ret = 0;
-  final _payload = 'This is the.';
+  final _payload = 'Opoor Opoor Omo Iya mi';
   final logs = <String>[];
   ffi.Pointer<ffi.Uint8> waveFormPointer = ffi.nullptr;
   late final Parameters parameters;
@@ -40,7 +41,12 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
 
-    _gGwave = GGwaveBridge(ffi.DynamicLibrary.open('libggwave.so'));
+    _gGwave = GGwaveBridge(
+      Platform.isAndroid
+          ? ffi.DynamicLibrary.open('libggwave.so')
+          : ffi.DynamicLibrary.process(),
+    );
+    // ffi.DynamicLibrary.open('libggwave.dylib');
     parameters = _gGwave.getDefaultParameters();
     parameters.sampleFormatInp = SampleFormat.sampleFormatI16.value;
     parameters.sampleFormatOut = SampleFormat.sampleFormatI16.value;
