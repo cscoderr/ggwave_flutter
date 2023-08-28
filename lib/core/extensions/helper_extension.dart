@@ -14,7 +14,6 @@ extension Uint8ListExtension on Uint8List {
 
 extension ListUint8ListExtension on List<Uint8List> {
   Pointer<Uint8> toPointer() {
-    final totalSize = fold<int>(0, (prev, element) => prev + element.length);
     final combinedDataPtr = calloc<Uint8>(totalSize);
     var offset = 0;
     for (final data in this) {
@@ -25,6 +24,10 @@ extension ListUint8ListExtension on List<Uint8List> {
       offset += dataLength;
     }
     return combinedDataPtr;
+  }
+
+  bool get hasData {
+    return true;
   }
 
   int get totalSize => fold<int>(0, (prev, element) => prev + element.length);

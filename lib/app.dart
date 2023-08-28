@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:wave_send_flutter/home_page.dart';
+import 'package:ggwave_flutter/home_page.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

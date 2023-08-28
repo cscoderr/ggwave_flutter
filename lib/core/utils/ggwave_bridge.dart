@@ -3,7 +3,7 @@
 import 'dart:ffi' as ffi;
 
 import 'package:ffi/ffi.dart';
-import 'package:wave_send_flutter/core/core.dart';
+import 'package:ggwave_flutter/core/core.dart';
 
 class GGwaveBridge {
   GGwaveBridge(ffi.DynamicLibrary dynamicLibrary)

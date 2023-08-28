@@ -530,7 +530,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/sound_stream/sound_stream.framework/Headers\"",
-					"\"/Users/cscoder/Documents/FlutterOSS/wave_send_flutter/ios/ggwave/include\"/**",
+					"\"/Users/cscoder/Documents/FlutterOSS/ggwave_flutter/ios/ggwave/include\"/**",
 				);
 				INFOPLIST_FILE = Runner/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -717,7 +717,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/sound_stream/sound_stream.framework/Headers\"",
-					"\"/Users/cscoder/Documents/FlutterOSS/wave_send_flutter/ios/ggwave/include\"/**",
+					"\"/Users/cscoder/Documents/FlutterOSS/ggwave_flutter/ios/ggwave/include\"/**",
 				);
 				INFOPLIST_FILE = Runner/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -748,7 +748,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/sound_stream/sound_stream.framework/Headers\"",
-					"\"/Users/cscoder/Documents/FlutterOSS/wave_send_flutter/ios/ggwave/include\"/**",
+					"\"/Users/cscoder/Documents/FlutterOSS/ggwave_flutter/ios/ggwave/include\"/**",
 				);
 				INFOPLIST_FILE = Runner/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
