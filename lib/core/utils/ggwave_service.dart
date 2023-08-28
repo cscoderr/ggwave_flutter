@@ -1,5 +1,6 @@
 import 'dart:ffi' as ffi;
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:ffi/ffi.dart';
 import 'package:ggwave_flutter/core/core.dart';
@@ -50,33 +51,29 @@ class GGwaveService {
             .map((codePoint) => String.fromCharCode(codePoint))
             .toList()
             .join("");
-        print(result);
+        print("result: $result");
         return result;
       } catch (e) {
-        print(e.toString());
-        // throw UnableToDecodeDataException(e.toString());
         return null;
       } finally {
-        print("unable to decode");
-        // calloc.free(dataBuffer);
-        // calloc.free(decoded);
+        calloc.free(decoded);
       }
     }
-    // calloc.free(dataBuffer);
-    // calloc.free(decoded);
-    // throw UnableToDecodeDataException("Unable to decode data");
-    print("finally here");
+    calloc.free(decoded);
     return null;
   }
 
-  (ffi.Pointer<ffi.Uint8>, int) encodeData(
-      ffi.Pointer<Utf8> payloadPointer, int txProtocolId) {
+  (ffi.Pointer<ffi.Uint8>, Uint8List) encodeData({
+    required ffi.Pointer<Utf8> payloadPointer,
+    required int txProtocolId,
+    required int volume,
+  }) {
     final encodedPayload = _gGwaveBridge.ggwaveEncode(
       instance: _instance,
       dataBuffer: payloadPointer.cast<Utf8>(),
       dataSize: payloadPointer.length,
       txProtocolId: txProtocolId,
-      volume: 100,
+      volume: volume,
       outputBuffer: ffi.nullptr,
       query: 1,
     );
@@ -88,11 +85,13 @@ class GGwaveService {
       dataBuffer: payloadPointer.cast<Utf8>(),
       dataSize: payloadPointer.length,
       txProtocolId: txProtocolId,
-      volume: 100,
+      volume: volume,
       outputBuffer: outputBufferPointer.cast(),
       query: 0,
     );
-    return (outputBufferPointer, ret);
+    final outputData =
+        outputBufferPointer.cast<ffi.Uint8>().asTypedList(2 * ret);
+    return (outputBufferPointer, outputData);
   }
 
   int initGGwave() {

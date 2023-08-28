@@ -13,9 +13,9 @@ dependencies:
 
   cupertino_icons: ^1.0.2
   ffi: ^2.1.0
-  sound_stream:
-    git:
-      url: https://github.com/cscoderr/flutter-sound-stream.git
+  flutter_sound: ^9.2.13
+  record: 5.0.0-beta.2
+  permission_handler: ^10.4.3
 
 dev_dependencies:
   flutter_test:

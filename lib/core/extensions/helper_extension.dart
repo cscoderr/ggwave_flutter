@@ -31,4 +31,8 @@ extension ListUint8ListExtension on List<Uint8List> {
   }
 
   int get totalSize => fold<int>(0, (prev, element) => prev + element.length);
+
+  bool hasMinimumBytes([int numBytes = 1024]) {
+    return totalSize >= numBytes;
+  }
 }

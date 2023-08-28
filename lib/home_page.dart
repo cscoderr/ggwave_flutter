@@ -5,7 +5,6 @@ import 'dart:typed_data';
 import 'package:ffi/ffi.dart';
 import 'package:flutter/material.dart';
 import 'package:ggwave_flutter/core/core.dart';
-import 'package:sound_stream/sound_stream.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -15,94 +14,98 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int ret = 0;
+  //Output buffer pointer for the decoded data
   ffi.Pointer<ffi.Uint8> outputBufferPointer = ffi.nullptr;
-  ffi.Pointer<ffi.Uint8> payloadPointer = ffi.nullptr;
 
+  final int _maxChunkSize = 50000;
+
+  // Flag to check if the recording is in progress
   bool _isRecording = false;
-  bool _isPlaying = false;
+
+  //Protocol id
   TxProtocolId txProtocolId = TxProtocolId.txProtocolAudibleFastest;
-  final RecorderStream _recorder = RecorderStream();
-  final PlayerStream _player = PlayerStream();
+
+  late GGwaveService _ggwaveService;
+
+  late final GGwaveSound _ggWaveSound;
+
+  //Encoded sound volume
+  int volume = 25;
+
+  //List of the recorded chunks
   final List<Uint8List> _micChunks = [];
+
+  //input text editiing controller
   late final TextEditingController _inputDataController;
+
+  //output text editiing controller
   late final TextEditingController _outputDataController;
 
-  StreamSubscription? _recorderStatus;
-  StreamSubscription? _playerStatus;
-  StreamSubscription? _audioStream;
+  //record subscription
+  StreamSubscription<Uint8List>? _recoderSubscription;
 
   @override
   void initState() {
     super.initState();
-
     _inputDataController = TextEditingController();
     _outputDataController = TextEditingController();
-    initPlugin();
-
+    _ggwaveService = GGwaveService.instance;
+    _ggWaveSound = GGwaveSound();
     _inputDataController.addListener(() {
       setState(() {});
-      print("dd");
     });
+    _requestPermission();
   }
 
-  Future<void> initAudio(Uint8List bytes) async {
-    _player.writeChunk(bytes);
-    print("byteee ${bytes.length}");
-    await _player.start();
+  void _requestPermission() {
+    _ggWaveSound.requestPermission();
   }
 
-  Future<void> initPlugin() async {
-    _recorderStatus = _recorder.status.listen((status) {
-      if (mounted) {
-        setState(() {
-          _isRecording = status == SoundStreamStatus.Playing;
-        });
-      }
-    });
-
-    _audioStream = _recorder.audioStream.listen((data) {
-      if (_micChunks.length <= 256) {
-        _micChunks.add(data);
-        if (mounted) {
-          setState(() {});
-        }
-        print("not zero ${_micChunks.totalSize}");
-        if (_micChunks.totalSize > 12) {
-          final response = GGwaveService.instance
-              .decodeData(_micChunks.toPointer(), _micChunks.totalSize);
+  Future<void> _startRecording() async {
+    try {
+      //TODO: _ggWaveSound.startRecording() stream is not working well
+      final stream = await _ggWaveSound.startRecording();
+      _recoderSubscription = stream.listen((event) {
+        _micChunks.add(event);
+        print("listening!!!!");
+        if (_micChunks.hasMinimumBytes()) {
+          print("decode!!!!");
+          final response = _ggwaveService.decodeData(
+              _micChunks.toPointer(), _micChunks.totalSize);
           if (response != null) {
-            _outputDataController.text = response;
+            final output = response.isNotEmpty ? response : 'Unable to decode';
+            _outputDataController.text = output;
+            _isRecording = false;
+            _micChunks.clear();
             if (mounted) {
               setState(() {});
             }
+            _ggWaveSound.stopRecording();
+            _recoderSubscription?.cancel();
           }
+        } else if (_micChunks.totalSize >= _maxChunkSize) {
+          _outputDataController.text = 'Unable to decode';
+          _isRecording = false;
+          _micChunks.clear();
+          setState(() {});
+          _ggWaveSound.stopRecording();
+          _recoderSubscription?.cancel();
         }
-      }
-    });
-
-    _playerStatus = _player.status.listen((status) {
-      if (mounted) {
-        setState(() {
-          _isPlaying = status == SoundStreamStatus.Playing;
-        });
-      }
-    });
-
-    await Future.wait([
-      _recorder.initialize(sampleRate: 48000),
-      _player.initialize(sampleRate: 48000),
-    ]);
+      });
+    } on UnableToRecordException {
+      _outputDataController.text = 'Unable to record';
+      _isRecording = false;
+      _micChunks.clear();
+      setState(() {});
+    }
   }
 
   @override
   void dispose() {
     calloc.free(outputBufferPointer);
-    calloc.free(payloadPointer);
-    GGwaveService.instance.freeGGwave();
-    _recorderStatus?.cancel();
-    _playerStatus?.cancel();
-    _audioStream?.cancel();
+    _ggwaveService.freeGGwave();
+    _ggWaveSound.dispose();
+    _recoderSubscription?.cancel();
     _inputDataController.dispose();
     _outputDataController.dispose();
     super.dispose();
@@ -147,6 +150,15 @@ class _HomePageState extends State<HomePage> {
                 isExpanded: true,
               ),
               const SizedBox(height: 20),
+              const Text('Volume'),
+              Slider.adaptive(
+                value: volume / 100,
+                onChanged: (value) {
+                  volume = (value * 100).toInt();
+                  setState(() {});
+                },
+              ),
+              const SizedBox(height: 20),
               const Text('Enter your message'),
               const SizedBox(height: 5),
               TextField(
@@ -154,32 +166,16 @@ class _HomePageState extends State<HomePage> {
                 maxLines: 5,
                 enabled: !_isRecording,
                 decoration: const InputDecoration(
-                  hintText: 'Enter payload',
+                  hintText: 'Enter your message',
                   border: OutlineInputBorder(),
                 ),
               ),
               const SizedBox(height: 20),
               ElevatedButton(
-                onPressed: _inputDataController.text.isNotEmpty && !_isRecording
-                    ? () async {
-                        final payloadPointer =
-                            _inputDataController.text.toNativeUtf8();
-                        final (outputBuffer, rett) = GGwaveService.instance
-                            .encodeData(payloadPointer, txProtocolId.value);
-                        final output = outputBuffer
-                            .cast<ffi.Uint8>()
-                            .asTypedList(2 * rett);
-
-                        setState(() {
-                          ret = rett;
-                          outputBufferPointer = outputBuffer;
-                        });
-                        await initAudio(output);
-                      }
-                    : null,
+                onPressed: _isInputDataValid ? () => _handleEncode() : null,
                 style: ElevatedButton.styleFrom(
                   foregroundColor: Colors.white,
-                  backgroundColor: Colors.green,
+                  backgroundColor: Theme.of(context).primaryColor,
                   fixedSize: Size(MediaQuery.sizeOf(context).width, 50),
                 ),
                 child: const Text('Send Message'),
@@ -199,72 +195,60 @@ class _HomePageState extends State<HomePage> {
               ),
               const SizedBox(height: 20),
               ElevatedButton(
-                onPressed: _isRecording
-                    ? _recorder.stop
-                    : () {
-                        _micChunks.clear();
-                        _outputDataController.clear();
-                        _recorder.start();
-                      },
+                onPressed: () => _handleDecode(),
                 style: ElevatedButton.styleFrom(
                   foregroundColor: Colors.white,
-                  backgroundColor: _isRecording ? Colors.red : Colors.blue,
+                  backgroundColor: _isRecording
+                      ? Colors.red
+                      : Theme.of(context).colorScheme.secondary,
                   fixedSize: Size(MediaQuery.sizeOf(context).width, 50),
                 ),
                 child:
                     Text(_isRecording ? 'Stop Listening' : 'Start Listening'),
               ),
               const SizedBox(height: 20),
-              Row(
-                children: [
-                  Expanded(
-                    child: IconButton(
-                      iconSize: 40.0,
-                      icon: Icon(_isPlaying ? Icons.pause : Icons.play_arrow),
-                      onPressed: _isPlaying
-                          ? _player.stop
-                          : () async {
-                              _player.start();
-
-                              if (_micChunks.isNotEmpty) {
-                                for (var chunk in _micChunks) {
-                                  await _player.writeChunk(chunk);
-                                }
-                                // _micChunks.clear();
-                              }
-                            },
-                    ),
-                  ),
-                  Expanded(
-                    child: IconButton(
-                      iconSize: 40.0,
-                      icon: const Icon(Icons.refresh),
-                      onPressed: () async {
-                        if (_isPlaying) {
-                          await _player.stop();
-                        }
-                        // decodeData(
-                        //     _micChunks.toPointer(), _micChunks.totalSize);
-                        // processData(waveFormPointer, ret);
-                        // final response = GGwaveService.instance.decodeData(
-                        //   waveFormPointer,
-                        //   ret,
-                        // );
-                        final response = GGwaveService.instance.decodeData(
-                            _micChunks.toPointer(), _micChunks.totalSize);
-                        if (response != null) {
-                          _outputDataController.text = response;
-                          setState(() {});
-                        }
-                      },
-                    ),
-                  ),
-                ],
-              ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  bool get _isInputDataValid =>
+      _inputDataController.text.isNotEmpty && !_isRecording;
+
+  //Function to handle the encoding of the data
+  Future<void> _handleEncode() async {
+    final payloadPointer = _inputDataController.text.toNativeUtf8();
+    final (outputBuffer, outputData) = _ggwaveService.encodeData(
+      payloadPointer: payloadPointer,
+      txProtocolId: txProtocolId.value,
+      volume: volume,
+    );
+
+    setState(() {
+      outputBufferPointer = outputBuffer;
+    });
+    if (_ggWaveSound.isPlaying) {
+      _ggWaveSound.stopPlayer();
+    }
+    await _ggWaveSound.startPlayer(outputData);
+    calloc.free(payloadPointer);
+  }
+
+  //Function to handle the decoding of the data
+  Future<void> _handleDecode() async {
+    if (_isRecording) {
+      await _ggWaveSound.stopRecording();
+      _isRecording = false;
+      setState(() {});
+    } else {
+      _ggWaveSound.stopRecording();
+      _micChunks.clear();
+      _outputDataController.clear();
+      _isRecording = true;
+      setState(() {});
+      _startRecording();
+    }
   }
 }
