@@ -1,16 +1,9 @@
-# wave_send_flutter
+# GGWave Flutter
+Flutter interop with C/C++ tiny data-over-sound library [`GGWave`](https://github.com/ggerganov/ggwave) library
 
-A new Flutter project.
+## Preview
+[Watch Preview](https://youtu.be/RnmpKBa7F0Q)
 
-## Getting Started
+## Bugs/Request
+If you encounter any problems feel free to open an issue. If you feel the library is missing a feature, please raise a ticket on GitHub and I'll look into it. Pull request are also welcome.
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.

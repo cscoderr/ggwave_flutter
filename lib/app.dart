@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:ggwave_flutter/home_page.dart';
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class GGWaveApp extends StatelessWidget {
+  const GGWaveApp({super.key});
 
   // This widget is the root of your application.
   @override
